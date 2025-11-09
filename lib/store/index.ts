@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { create } from 'zustand'
-import { exportImageWithGradient } from './export-utils'
 import { GradientKey } from '@/lib/constants/gradient-colors'
 import { AspectRatioKey } from '@/lib/constants/aspect-ratios'
 import { BackgroundConfig, BackgroundType } from '@/lib/constants/backgrounds'
@@ -451,7 +450,6 @@ interface ImageState {
   setImageBorder: (border: ImageBorder | Partial<ImageBorder>) => void
   setImageShadow: (shadow: ImageShadow | Partial<ImageShadow>) => void
   setPerspective3D: (perspective: Partial<ImageState['perspective3D']>) => void
-  exportImage: () => Promise<void>
 }
 
 export const useImageStore = create<ImageState>((set, get) => ({
@@ -707,14 +705,5 @@ export const useImageStore = create<ImageState>((set, get) => ({
         ...perspective,
       },
     })
-  },
-
-  exportImage: async () => {
-    try {
-      await exportImageWithGradient('image-render-card')
-    } catch (error) {
-      console.error('Export failed:', error)
-      throw error
-    }
   },
 }))

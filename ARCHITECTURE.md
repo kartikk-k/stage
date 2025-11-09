@@ -12,9 +12,8 @@ Stage is a modern web-based canvas editor built with Next.js 16 and React 19. It
 - **TypeScript** - Type safety throughout the codebase
 
 ### Canvas & Rendering
-- **Konva/React-Konva** - 2D canvas rendering engine for user images and overlays
-- **html2canvas** - DOM-to-canvas conversion for background rendering
-- **modern-screenshot** - 3D transform capture for perspective effects
+- **Konva/React-Konva** - 2D canvas rendering engine for all visual elements (backgrounds, images, text, overlays)
+- **modern-screenshot** - 3D transform capture for CSS perspective effects (HTML fallback only)
 
 ### State Management
 - **Zustand** - Lightweight state management with two main stores:
@@ -131,45 +130,41 @@ Manages canvas rendering state:
 
 ### Canvas Rendering Architecture
 
-The canvas rendering uses a hybrid approach:
+The canvas rendering uses a pure canvas approach:
 
-1. **Background Layer** - Rendered via HTML/CSS, captured with html2canvas
-2. **User Image Layer** - Rendered via Konva Stage
-3. **Overlay Layer** - Text and image overlays rendered separately, composited on top
+1. **Background Layer** - Gradients, solid colors, and images rendered directly in Konva
+2. **User Image Layer** - Main image rendered in Konva Stage with frames and effects
+3. **Overlay Layer** - Text and image overlays rendered as Konva elements with drag support
+4. **3D Transform Layer** - Only CSS 3D transforms use HTML fallback via modern-screenshot
 
-This separation allows:
-- High-quality background rendering with CSS effects
-- Precise image positioning with Konva
-- Proper layering of overlays above user content
+This architecture provides:
+- High-quality rendering with Konva's canvas engine
+- Precise image and overlay positioning with drag support
+- Proper layering of all elements in a single compositable canvas
+- Blur and filter effects applied directly to canvas elements
 
 ### Export Pipeline
 
 The export process follows a multi-step compositing pipeline:
 
 ```text
-1. Export Background (html2canvas)
-   ├── Clone background element
-   ├── Apply blur effects
-   └── Apply noise overlay
+1. Export Konva Stage (All Layers)
+   ├── Background (gradient/solid/image with blur)
+   ├── Patterns and noise textures
+   ├── User image with frames
+   ├── Text overlays
+   ├── Image overlays
+   └── Export at high pixel ratio with scaling
 
-2. Export Konva Stage (user images)
-   ├── Hide background layer
-   ├── Export at high pixel ratio
-   └── Scale to export dimensions
+2. Export 3D Transforms (if active)
+   ├── Clone 3D transformed element
+   ├── Capture with modern-screenshot
+   └── Composite onto Konva canvas
 
-3. Export Overlays (html2canvas)
-   ├── Create temporary DOM container
-   ├── Render text overlays with fonts
-   ├── Render image overlays
-   └── Capture with html2canvas
+3. Add Watermark
+   └── Draw directly on canvas
 
-4. Composite Layers
-   ├── Background (bottom)
-   ├── User Image (middle)
-   └── Overlays (top)
-
-5. Add Watermark
-6. Convert to Blob/DataURL
+4. Convert to Blob/DataURL
 ```
 
 ### Image Storage
@@ -290,12 +285,11 @@ Get Konva stage reference
   ↓
 exportElement() called with all state
   ↓
-1. Export background (html2canvas)
-2. Export Konva stage (user image)
-3. Export overlays (html2canvas)
-4. Composite all layers
-5. Add watermark
-6. Convert to blob
+1. Export Konva stage (includes all layers)
+2. Export 3D transforms if active (modern-screenshot)
+3. Composite 3D layer if needed
+4. Add watermark to canvas
+5. Convert to blob/data URL
   ↓
 Download file + save to IndexedDB
 ```
@@ -385,9 +379,8 @@ BETTER_AUTH_URL=https://your-domain.com
 - **konva** (10.0.8) - Canvas library
 - **react-konva** (19.2.0) - React bindings for Konva
 - **zustand** (5.0.8) - State management
-- **html2canvas** (1.4.1) - DOM to canvas
-- **modern-screenshot** (4.6.6) - 3D transform capture
-- **cloudinary** (2.8.0) - Image optimization
+- **modern-screenshot** (4.6.6) - 3D transform capture (HTML fallback only)
+- **cloudinary** (2.8.0) - Image optimization (optional)
 - **radix-ui** - UI primitives
 - **tailwindcss** (4) - Styling
 

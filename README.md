@@ -127,8 +127,7 @@ A modern web-based canvas editor for creating stunning visual designs. Upload im
 ### Canvas & Rendering
 - **[Konva](https://konvajs.org/)** - 2D canvas rendering engine
 - **[React-Konva](https://github.com/konvajs/react-konva)** - React bindings for Konva
-- **[html2canvas](https://html2canvas.hertzen.com/)** - DOM-to-canvas conversion
-- **[modern-screenshot](https://github.com/1000px/modern-screenshot)** - 3D transform capture
+- **[modern-screenshot](https://github.com/1000px/modern-screenshot)** - 3D transform capture (CSS 3D transforms only)
 
 ### State Management
 - **[Zustand](https://github.com/pmndrs/zustand)** - Lightweight state management
@@ -181,11 +180,12 @@ Stage is a **fully in-browser canvas editor** that requires no external services
 
 ### Export Pipeline (100% Client-Side)
 
-Stage uses a hybrid canvas rendering approach with complete in-browser processing:
+Stage uses a pure canvas rendering approach with complete in-browser processing:
 
-- **Background Layer** - Rendered via HTML/CSS, captured with html2canvas
-- **User Image Layer** - Rendered via Konva Stage for precise positioning
-- **Overlay Layer** - Text and image overlays composited on top
+- **Background Layer** - Gradients, solid colors, and images rendered in Konva
+- **User Image Layer** - Main image rendered in Konva Stage with precise positioning
+- **Overlay Layer** - Text and image overlays rendered directly in Konva
+- **3D Transform Layer** - CSS 3D transforms captured with modern-screenshot as HTML fallback
 
 The export pipeline composites these layers client-side in the correct order to produce high-quality output without any server or external API calls.
 
